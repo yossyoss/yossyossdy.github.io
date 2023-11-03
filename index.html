@@ -1,29 +1,603 @@
 <!DOCTYPE html>
-<head>
-    <link rel="preconnect" href="//cdn.dynamicyield.com">
-    <link rel="preconnect" href="//st.dynamicyield.com">
-    <link rel="dns-prefetch" href="//cdn.dynamicyield.com">
-    <link rel="dns-prefetch" href="//st.dynamicyield.com">
-    <script type="text/javascript" src="//cdn.dynamicyield.com/api/8783466/api_dynamic.js"></script>
-    <script type="text/javascript" src="//cdn.dynamicyield.com/api/8783466/api_static.js"></script>
-    <script>
-        window.DY = window.DY || {};
-        DY.recommendationContext = {type:"PRODUCT", data:
-["1000143965"]};; 
+<head>    
+    <style>
+        /* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;700&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+:root {
+    --main-color: 43, 59, 222;
+    --text-color: #68697B;
+    --light: #fff;
+    --light2: #F8F8FA;
+    --light3: #e4e8f0;
 
-    </script>
+    --dark2: #68697b;
+    --dark3: #a4a4b6;
+}
+/* not related to chat*/
+body{
+    /* min-height: 100vh; */
+    background-color: lightgreen;
+}
+.content {
+    height: 2000px; /* Adjust the height as needed to require scrolling */
+    padding: 20px;
+}
+/* init ul */
+#dy-muse-chat-wrapper ul { 
+    list-style: none; 
+    margin: 0;
+    padding: 0;
+} 
+/* general classes */
+.hidden {
+    display: none !important;
+}
+/**
+ * ==============================================
+ * chat wrapper
+ * ==============================================
+ */
+#dy-muse-chat-wrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    margin: 0;
+    z-index: 999999;
+    box-shadow: -4px 1px 8px 7px rgba(0, 0, 0, 0.1);
+    height:100%;
+    width: 80%;
+    max-width: 828px;
+    background-color: #fff;
+    overflow-y: scroll;
+    font-family: Inter;
+
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    transition: right 0.3s;
+    transition: transform 0.3s; /* Use transform for the sliding animation */
+    transform: translateX(100%);
+    display: none;
+    /* display: flex; */
+    flex-direction: column;
+}
+
+#dy-muse-chat-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99999;
+}
+/**
+ * ==============================================
+ * chat header
+ * ==============================================
+ */
+.dy-muse-header {
+    border-bottom: 1px solid #E4E8F0; 
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    font-family: Inter;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    gap:8px;
+}
+.dy-muse-header-right{
+    margin-left: auto;
+    display:flex;
+    align-items: center;
+    gap: 12px;
+}
+.dy-muse-header-restart-btn{
+    border-radius: 25px;
+    cursor: pointer;
+    padding: 8px 10px 8px 9px;
+    background: var(--light);
+    color:rgba(var(--main-color));
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.13);
+    display: flex;
+    font-size: 13px;
+    gap:5px;
+}
+
+.dy-muse-header-restart-btn:hover {
+    background: rgba(var(--main-color));
+    color: var(--light);
+    cursor: pointer;
+}
+
+.dy-muse-header-restart-img {
+    fill: rgba(var(--main-color));
+}
+.dy-muse-header-restart-btn:hover .dy-muse-header-restart-img{
+    fill: var(--light);
+}
+
+.dy-muse-header-restart-btn-text{
+    cursor: pointer;
+    line-height: 19px;
+}
+#dy-muse-header-close { 
+    width: 24px;
+    padding: 5px;
+    text-align: center;
+
+}
+#dy-muse-header-close:hover { 
+    fill:var(--dark2); 
+}
+#dy-muse-header-close svg { 
+    height: 14px;
+    width: 14px;  
+    cursor: pointer;
+}
+
+.dy-muse-header-close:hover {
+    fill:var(--dark2);
+}
+
+/**
+ * ==============================================
+ * chat messages container
+ * ==============================================
+ */
+.dy-muse-messages {
+    padding: 24px 16px 24px 16px;
+    display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+   flex-grow: 1;
+   overflow-y: auto;
+}
+.dy-muse-message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.dy-muse-message-item {
+    font-size: 14px;
+    max-width: 500px;
+    padding:12px 16px;    
+    border-radius: 20px;
+    /* transition: opacity 0.2s; */
+    transform: translateY(10px);
+  transition: transform 0.3s;
+  animation: fade-in 0.3s forwards;
+}
+.dy-muse-message-item.left {
+    background-color: var(--light2);
+}
+.dy-muse-message-item.left.gallery {
+    max-width: none;
+}
+.dy-muse-message-item.right {
+    text-align: end;
+    align-self: end;
+    padding:0;
+}
+
+.dy-muse-message-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position:relative;
+}
+
+.dy-muse-message-gallery-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark2)
+}
+.dy-muse-message-gallery-btn {
+    cursor: pointer;
+    position: absolute;
+    background: var(--light2);
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    top: 41%;
+}
+.dy-muse-message-gallery-btn:hover{
+    background: rgb(var(--main-color));
+}
+.dy-muse-message-gallery-btn:hover .dy-next, 
+.dy-muse-message-gallery-btn:hover .dy-prev {
+    fill: var(--light2);
+}
+.dy-muse-message-gallery-btn.prev {    
+    left: 1%;  
+}
+.dy-muse-message-gallery-btn.next{
+    right: 1%;
+}
+.dy-next, .dy-prev {
+    fill: rgb(var(--main-color));
+}
+
+.dy-muse-message-gallery-container {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    color: var(--dark2);
+    overflow-x: hidden;
+}
+
+.dy-muse-message-gallery-item {
+    display: flex;
+    flex-direction: column;
+    gap:4px;
+}
+.dy-muse-message-gallery-item-image{
+    position:relative;
+    cursor: pointer;
+    box-shadow: 0px 2px 4px 0px #00000014;
+}
+
+.dy-muse-message-gallery-item-image:hover{
+    box-shadow: 0px 2px 5px 0px #0000003B;
+}
+.dy-muse-show-similiar-container {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    border-radius: 20px;
+    background: white;
+    color: rgb(var(--main-color));
+    padding: 6px;
+    width: 20px;
+    transition: width 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    cursor: pointer;
+    display: flex;
+    gap: 5px;
+    text-wrap: nowrap;
+    overflow-x: hidden;
+}
+.dy-muse-show-similiar-container:hover {
+    width: 70%;
+}
+.dy-muse-show-similiar-path{
+    fill: rgb(var(--main-color));
+}
+.dy-muse-show-similiar-text {
+    font-size: 13px;
+    cursor: pointer;
+    display: none; 
+}
+
+.dy-muse-show-similiar-container:hover .dy-muse-show-similiar-text {
+  display: inline;
+}
+
+
+.dy-muse-message-gallery-item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 158px;
+}
+
+
+
+.dy-muse-user-msg {
+    position: relative;
+    padding: 12px 16px;
+    height: auto;
+  transform: translateY(10px);
+  transition: transform 0.3s;
+  animation: fade-in 0.3s forwards;
+  }
+  @keyframes fade-in {
+  from {
+    transform: translateY(10px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+  .dy-muse-user-msg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(var(--main-color));
+    filter: brightness(30%);
+    border-radius: 20px;
+  }
+
+  .dy-muse-user-msg-text {
+    color: var(--light);
+    position: relative;
+    z-index: 1; 
+    margin: 0;
+    line-height: 20px;
+    text-align: left;
+  }
+/**
+ * ==============================================
+ * footer
+ * ==============================================
+ */
+ .dy-muse-footer {
+    display: flex;
+    flex-direction: column;
+ }
+/**
+ * ==============================================
+ * suggestions
+ * ==============================================
+ */
+.dy-muse-suggestions {
+    border-top: 1px solid #E4E8F0;
+    background: #F8F8FA;
+    padding: 8px 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.dy-muse-suggestions-list {
+    display: flex;
+    flex-direction: row;
+    /* padding: 8px 16px; */
+    gap: 8px;
+}
+.dy-muse-suggestions-item {
+    color: rgba(var(--main-color));
+    padding: 8px 16px;
+    border-radius: 25px;
+    background: var(--light);
+    border: 1px solid rgba(var(--main-color));
+    /* font-family: Inter; */
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 19px;
+    letter-spacing: 0em;
+    text-align: left;
+    cursor: pointer;
+}
+.dy-muse-suggestions-item:hover {
+    color: var(--light);
+    background: rgba(var(--main-color));
+    
+}
+/**
+ * ==============================================
+ * chat input 
+ * ==============================================
+ */
+.dy-muse-message-input {
+  display: flex;
+  background: #F8F8FA;
+  padding: 20px 16px 28px 16px;
+  height: 44px;
+  border-top: 1px solid #E4E8F0;
+  
+}
+.dy-muse-message-input textarea {
+    width: 796px;
+    border-radius: 23px;
+    padding: 8px 20px;
+    border: 1px solid #E4E8F0;
+    box-shadow: 0px 0px 0px 0px transparent;
+    transition: box-shadow 0.3s ease;
+    font-family: Inter;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+#dy-muse-message-input-field {
+    outline: none;
+  width: 100%;
+  height: 100%;
+  resize: none;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  min-height: 44px;
+}
+
+.dy-muse-message-input textarea:focus {
+    outline: none;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.15);
+
+}
+.dy-muse-message-input button {
+    display: inline-flex;
+    justify-content: center;
+    border: 0px;
+    cursor: pointer;
+    border-radius: 50%;
+    position: absolute;
+    right: 19px;
+    bottom: 32px;
+    padding: 5px;
+    background: rgb(var(--main-color));
+    width: 35px;
+    height: 35px;
+}
+.dy-muse-message-input button:hover {
+    /* background: rgba(var(--main-color), 0.8); */
+}
+
+.dy-muse-rounded-image{
+    width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--text-color);
+
+}
+/**
+ * ==============================================
+ * chat counter 
+ * ==============================================
+ */
+.dy-muse-message-input-counter {
+font-family: Inter;
+font-size: 12px;
+font-weight: 500;
+line-height: 15px;
+letter-spacing: 0em;
+text-align: right;
+color: var(--text-color);
+position: absolute;
+bottom: 8px;
+left: 39px;
+}
+
+/**
+ * ==============================================
+ * animated dot Flashing
+ * ==============================================
+ */
+ .dy-muse-dot-flashing {
+    padding:18px 16px;
+    background-color: var(--light2);
+    border-radius: 20px;
+    width: 72px;
+    display: flex;
+    justify-content: center;
+ }
+ .dot-flashing {    
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--dark3);
+  color: var(--dark3);
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: 0.5s;
+}
+.dot-flashing::before, .dot-flashing::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+.dot-flashing::before {
+  left: -15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--dark3);
+  color: var(--dark3);
+  animation: dot-flashing 1s infinite alternate;
+  animation-delay: 0s;
+}
+.dot-flashing::after {
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--dark3)880ff;
+  color: var(--dark3);
+  animation: dot-flashing 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+  0% {
+    background-color: var(--dark3);
+  }
+  50%, 100% {
+    background-color: var(--light3);
+  }
+}
+
+
+
+
+
+    </style>
 </head>
+
 <body>
     <h1>This is my site</h1>
-<!--     <div class="recommendations"></div> -->
-    <div class="test"></div>
-<!--     <div class="test2"></div> -->
-<!--     <div class="recommendations"></div> -->
-    <div class="recommendations3"></div>
-    <div id="dy_Untitled_Widget3"></div><script type="text/javascript">DYO.smartObject("Untitled Widget3", {target: "dy_Untitled_Widget3", inline: true});</script>
-<!--     <div id="paragraph3"></div> -->
-    <!-- <div id="dy_Yossi_Dynamic_Content"></div> -->
-<!--  <div id="dy_Untitled_Widget3"></div><script type="text/javascript">DYO.smartObject("Untitled Widget3", {target: "dy_Untitled_Widget3", inline: true});</script> -->
-<!--     <div id="dy_Yossi_Dynamic_Content"></div><script type="text/javascript">DYO.smartObject("Yossi Dynamic Content4", {target: "dy_Yossi_Dynamic_Content", inline: false});</script> -->
-<!--     <div id="dy_Untitled_Widget2"></div><script type="text/javascript">DYO.smartObject("Untitled Widget2", {target: "dy_Untitled_Widget2", inline: true});</script> -->
-</body> 
+    <button id="open-chat">Open Chat</button>
+    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Veritatis, repudiandae nihil porro praesentium molestias reprehenderit delectus odit exercitationem voluptas aut cumque, maiores quo eius, enim deserunt doloribus inventore similique aperiam?</p>
+    <div class="content">
+        <h1>Scrollable Content</h1>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <br/>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <p>This is a sample HTML page with a long content that will require scrolling. You can add more content or elements as needed to increase the length of the page.</p>
+        <br/>
+    </div>
+    <div id="dy-muse-chat-overlay" class="hidden"></div>
+    <div id="dy-muse-chat-wrapper">
+        <div class="dy-muse-header">
+            <img class="dy-muse-rounded-image" src="./me.jpeg"/>
+            <div class="dy-muse-header-title">Your Shopping Muse</div>
+            <div class="dy-muse-header-right">
+                <div class="dy-muse-header-restart-btn hidden">
+
+                <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="dy-muse-header-restart-img" fill-rule="evenodd" clip-rule="evenodd" d="M8.84882 1.12802C9.05433 0.768386 9.51247 0.643439 9.8721 0.848946L16.8721 4.84895C17.2317 5.05445 17.3567 5.51259 17.1512 5.87223C16.9684 6.19217 16.5856 6.32638 16.2501 6.20741C16.1719 6.23508 16.0877 6.25013 16 6.25013H10C7.37665 6.25013 5.25 8.37678 5.25 11.0001C5.25 13.6235 7.37665 15.7501 10 15.7501H10.25C13.0114 15.7501 15.25 13.5116 15.25 10.7501V9.50013C15.25 9.08591 15.5858 8.75013 16 8.75013C16.4142 8.75013 16.75 9.08591 16.75 9.50013V10.7501C16.75 14.34 13.8399 17.2501 10.25 17.2501H10C6.54822 17.2501 3.75 14.4519 3.75 11.0001C3.75 7.54835 6.54822 4.75013 10 4.75013H13.6758L9.1279 2.15131C8.76826 1.9458 8.64331 1.48766 8.84882 1.12802Z" fill="#464646"/>
+                    </svg>
+                    
+</svg>
+                    <label class="dy-muse-header-restart-btn-text">Start Again</label>
+                </div>
+                <div id="dy-muse-header-close">
+                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" 
+                        clip-rule="evenodd" 
+                        class="dy-muse-header-close"
+                        d="M2.52532 2.29289C2.91584 1.90237 3.549 1.90237 3.93953 2.29289L9.37887 7.73223L14.8182 2.29289C15.2087 1.90237 15.8419 1.90237 16.2324 2.29289C16.6229 2.68342 16.6229 3.31658 16.2324 3.70711L10.7931 9.14645L15.9395 14.2929C16.3301 14.6834 16.3301 15.3166 15.9395 15.7071C15.549 16.0976 14.9158 16.0976 14.5253 15.7071L9.37887 10.5607L4.23242 15.7071C3.8419 16.0976 3.20873 16.0976 2.81821 15.7071C2.42768 15.3166 2.42768 14.6834 2.81821 14.2929L7.96466 9.14645L2.52532 3.70711C2.13479 3.31658 2.13479 2.68342 2.52532 2.29289Z" 
+                        fill="black"/>
+                        </svg>
+                </div>
+            </div>
+        </div>    
+        <div class="dy-muse-messages">
+          <ul class="dy-muse-message-list">          
+            <li class="dy-muse-message-item left">
+                Hey there 👋 I’m here to help you find what you need. Here are some recommendations to help get going:
+            </li>
+          </ul>     
+      </div>
+    <div class="dy-muse-footer">
+      <div class="dy-muse-suggestions">
+        <ul class="dy-muse-suggestions-list">
+        </ul>
+      </div>  
+      <div class="dy-muse-message-input">
+        <textarea id="dy-muse-message-input-field" maxlength="70"
+        placeholder="Write anything"></textarea>
+        <button type="button" class="btn" id="dy-muse-message-input-btn">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M7.51014 10.0393C7.80961 10.5777 8.3405 10.948 8.94919 11.0431L14.7002 11.9417C14.8023 11.9577 14.9057 11.9636 15.0088 11.9704C15.3486 11.9932 15.6036 12.1047 15.6036 12.4657C15.6036 12.8267 15.3486 12.9382 15.0088 12.9609C14.9057 12.9678 14.8023 12.9737 14.7002 12.9897L8.94919 13.8883C8.3405 13.9834 7.80961 14.3537 7.51014 14.8921L4.56519 20.1864C4.33343 20.6031 4.76088 21.0769 5.1991 20.889L23.7813 12.9253C24.1853 12.7521 24.1853 12.1793 23.7813 12.0061L5.1991 4.04232C4.76088 3.85451 4.33343 4.32829 4.56519 4.74495L7.51014 10.0393Z" 
+                fill="white"/>
+                </svg>
+                
+        </button>
+      </div>
+      <div class="dy-muse-message-input-counter"></div>
+    </div>
+
+    <script type="text/javascript" src="https://gist.githubusercontent.com/yossyoss/f58b4dacd87873b08079fc562c73ef64/raw/2e69922651667931ba58c7dfc12ee20b144612ee/muse-chat.js"
+    ></script>
+    </body>
